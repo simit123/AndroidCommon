@@ -30,6 +30,7 @@ public final class Route {
     /**
      * 此方法统一处理js传过来的数据
      * 可在此通过原生的方式打开新的网页，只需要在此新建Fragment 或 activity
+     * shouldOverrideUrlLoading（）方法的回调
      *
      * @return false webView 自己处理
      */
@@ -47,7 +48,7 @@ public final class Route {
         Uri uri = Uri.parse(url);
         if (uri.getScheme().equals("js")) {
             if (uri.getAuthority().equals("webview")) {
-                ToastUtils.show("js调用了android的方法");
+                ToastUtils.show("js调用android方法");
             }
             return true;
         }

@@ -6,10 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.common.core.views.Loader;
+
 /**
  * @author by wuYang
  * @date 2019/12/17
- * @describe
+ * @describe BaseWebFragment使用例子，使用时只需要将web的url传入即可
  */
 public class ExampleWebFragment extends BaseWebFragment {
 
@@ -27,11 +29,4 @@ public class ExampleWebFragment extends BaseWebFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return getWebView();
     }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        loadWebPage(getArguments().getString("url"));
-    }
-
 }

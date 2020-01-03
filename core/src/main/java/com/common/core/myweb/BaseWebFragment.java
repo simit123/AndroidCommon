@@ -1,15 +1,12 @@
 package com.common.core.myweb;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.WebView;
 
-import com.common.core.R;
+import com.common.core.views.Loader;
 
 
 /**
@@ -17,16 +14,14 @@ import com.common.core.R;
  * @date 2019/12/17
  * @describe webView 的fragment基类
  */
-public abstract class BaseWebFragment extends Fragment {
+public abstract class BaseWebFragment extends Fragment implements IPageLoadListener {
 
 
     private WebView mWebView = null;
     private boolean mIsWebViewAvailable = false;//webView的状态 是否可用
-    private IPageLoadListener iPageLoadListener;
+    private String url;
+    private boolean isNoLoading;//是否需要loading 默认需要
 
-    public void setPageLoadListener(IPageLoadListener iPageLoadListener) {
-        this.iPageLoadListener = iPageLoadListener;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,22 +86,27 @@ public abstract class BaseWebFragment extends Fragment {
     }
 
     private void initWebView() {
-//        WebView web = (WebView) view.findViewById(R.id.web);
+
+        url = getArguments().getString(RouteKeys.WEB_URL);
+        isNoLoading = getArguments().getBoolean(RouteKeys.NO_LOAD);
         mWebView = WebViewInitialize.initWebSettings(new WebView(getContext()));
         WebViewClientImpl webViewClient = new WebViewClientImpl();
-        webViewClient.setPageLoadListener(iPageLoadListener);
+
+        webViewClient.setPageLoadListener(this);
         mWebView.setWebViewClient(webViewClient);
         mWebView.setWebChromeClient(new WebChromeClientImpl());
         //将Java对象注入进js
         mWebView.addJavascriptInterface(WebInterface.create(), RouteKeys.JS_INTERFACE);
         mIsWebViewAvailable = true;
 
+        loadWebPage(url);
+
     }
 
     /**
      * 加载网络web
      *
-     * @param url
+     * @param url web地址
      */
     public void loadWebPage(String url) {
         if (mWebView == null || url == null || "".equals(url)) {
@@ -118,7 +118,7 @@ public abstract class BaseWebFragment extends Fragment {
     /**
      * 加载本地web
      *
-     * @param url
+     * @param url web地址
      */
     public void loadLocalPage(String url) {
         if (mWebView == null || url == null || "".equals(url)) {
@@ -127,4 +127,17 @@ public abstract class BaseWebFragment extends Fragment {
         loadWebPage("file:///android_asset/" + url);
     }
 
+    @Override
+    public void onLoadStart() {
+        if (!isNoLoading) {
+            Loader.showLoading(getContext());
+        }
+    }
+
+    @Override
+    public void onLoadEnd() {
+        if (!isNoLoading) {
+            Loader.dismissLoading();
+        }
+    }
 }

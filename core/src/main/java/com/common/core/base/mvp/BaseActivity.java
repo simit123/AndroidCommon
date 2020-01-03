@@ -1,31 +1,22 @@
 package com.common.core.base.mvp;
 
-import android.content.Context;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
-import com.common.core.utils.NetWorkStateReceiver;
-import com.common.core.utils.toast.ToastUtils;
+import com.common.core.event.MessageEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 /**
- * Created by kk on 2019/8/20 11:21
+ * @author by wuYang
+ * @date 2019/12/23
+ * @describe
  */
 public abstract class BaseActivity<P extends BasePresenter> extends AbstractBaseActivity implements IBaseView {
 
-    private static final String TAG = "BaseActivity";
+    private P mPresenter;
 
-    public P mPresenter;
-
-    private NetWorkStateReceiver netWorkStateReceiver;
-
-
-    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,15 +26,8 @@ public abstract class BaseActivity<P extends BasePresenter> extends AbstractBase
         }
     }
 
-
     @Override
     protected void onResume() {
-        if (netWorkStateReceiver == null) {
-            netWorkStateReceiver = new NetWorkStateReceiver();
-        }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(netWorkStateReceiver, filter);
         super.onResume();
     }
 
@@ -51,12 +35,6 @@ public abstract class BaseActivity<P extends BasePresenter> extends AbstractBase
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onPause() {
-        unregisterReceiver(netWorkStateReceiver);
-        super.onPause();
     }
 
     @Override
@@ -74,14 +52,8 @@ public abstract class BaseActivity<P extends BasePresenter> extends AbstractBase
     }
 
     @Override
-    protected void attachBaseContext(Context newBase) {
-        // TODO: 2019/12/9 多语言适配
-//        super.attachBaseContext(MultiLanguageUtil.attachBaseContext(newBase));
-    }
-
-    @Override
     public void showErrorMsg(String errorMsg) {
-        ToastUtils.show(errorMsg);
+
     }
 
     @Override
@@ -89,15 +61,12 @@ public abstract class BaseActivity<P extends BasePresenter> extends AbstractBase
 
     }
 
-    /**
-     * 默认重写此方法，不用mvp返回null即可
-     *
-     * @return
-     */
     public abstract P getP();
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onEvent() {
-//
-//    }
+    /**
+     * eventBus 使用时注册eventBus的类必须有一个添加了@Subscribe注解并且带参数的方法
+     */
+    @Subscribe
+    public void onEvent(MessageEvent messageEvent) {
+    }
 }
